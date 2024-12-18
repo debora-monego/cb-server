@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container content-padding">
+    <!-- Warning message about job result retention period -->
+    <div class="alert alert-warning" role="alert">
+        <strong>Note:</strong> Job results are stored for 2 weeks. Please download your results before they are unrecoverably deleted!
+    </div>
+
+    <h1 class="mb-4">Your Submitted Jobs</h1>
+    <div class="list-group">
+        {% for job in jobs %}
+            <div class="list-group-item list-group-item-action flex-column align-items-start" id="job-{{ job.celery_task_id }}">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">Job ID: {{ job.id }}</h5>
+                    <small class="text-muted">Submitted on {{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                </div>
+                <p class="mb-1">{{ job.description }}</p>
+
+                <!-- Status and action -->
+                <div id="status-{{ job.celery_task_id }}">
+                    {% if job.status == 'SUCCESS' %}
+                    <!-- <a href="{{ url_for('download_results', filename=job.result_path) }}" class="btn btn-secondary">Download Result</a> -->
+                    <a href="{{ job.result_path }}" class="btn btn-secondary">Download Result</a>
+                    {% elif job.status == 'FAILURE' %}
+                        <button class="btn btn-danger" disabled>Job failed</button>
+                    {% else %}
+                        <button class="btn btn-secondary" disabled>Running... You will be notified via email upon completion.</button>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">No jobs submitted yet.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<script type="text/javascript">
+    // Object to store interval IDs for each job
+    const pollingIntervals = {};
+
+    // Function to poll the job status
+    function checkJobStatus(taskId) {
+        fetch(`/job-status/${taskId}`)
+            .then(response => response.json())
+            .then(data => {
+                const statusDiv = document.getElementById(`status-${taskId}`);
+                if (data.state === 'SUCCESS') {
+                    statusDiv.innerHTML = `<a href="${data.download_url}" class="btn btn-secondary">Download Result</a>`;
+                    clearInterval(pollingIntervals[taskId]);  // Stop polling on success
+                } else if (data.state === 'FAILURE') {
+                    statusDiv.innerHTML = '<button class="btn btn-danger" disabled>Job failed</button>';
+                    clearInterval(pollingIntervals[taskId]);  // Stop polling on failure
+                } else if (data.state === 'PENDING' || data.state === 'STARTED') {
+                    statusDiv.innerHTML = '<button class="btn btn-secondary" disabled>Running... You will be notified via email upon completion.</button>';
+                } else {
+                    statusDiv.innerHTML = `<button class="btn btn-info" disabled>${data.status}</button>`;
+                }
+            })
+            .catch(error => console.error('Error fetching job status:', error));
+    }
+
+    // Loop through all jobs and poll their status every 5 seconds if they are not completed
+    document.addEventListener("DOMContentLoaded", function() {
+        {% for job in jobs %}
+            if (!['SUCCESS', 'FAILURE'].includes('{{ job.status }}')) {
+                // Start polling only for pending or running jobs
+                pollingIntervals['{{ job.celery_task_id }}'] = setInterval(function() {
+                    checkJobStatus('{{ job.celery_task_id }}');
+                }, 5000);  // Poll every 5 seconds
+            }
+        {% endfor %}
+    });
+</script>
+{% endblock %}

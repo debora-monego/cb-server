@@ -1,0 +1,74 @@
+ <!-- Optional JavaScript -->
+ <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+ <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+ <!-- JS defining the sub-dropdown menu for positions -->
+ <script type="text/javascript">
+	 document.addEventListener("DOMContentLoaded", function() {
+		 const organismSelect = document.getElementById('organism');
+		 const nTerminalSelect = document.getElementById('n_terminal_crosslink');
+		 const cTerminalSelect = document.getElementById('c_terminal_crosslink');
+		 const nPositionSelect = document.getElementById('n_position');
+		 const cPositionSelect = document.getElementById('c_position');
+ 
+		 function updatePositionOptions(positionSelect, positions) {
+			 positionSelect.innerHTML = ''; // Clear existing options
+ 
+			 // Add a default empty option to prompt user to select
+			 const defaultOption = document.createElement('option');
+			 defaultOption.value = '';
+			 defaultOption.textContent = 'Select a position';
+			 positionSelect.appendChild(defaultOption);
+ 
+			 // Log positions received for debugging
+			 console.log("Updating options for select:", positionSelect.id, positions);
+ 
+			 positions.forEach(pos => {
+				 const option = document.createElement('option');
+				 option.value = pos;
+				 option.textContent = pos;
+				 positionSelect.appendChild(option);
+			 });
+		 }
+ 
+		 function fetchPositions(typeSelect, positionSelect) {
+			 const selectedType = typeSelect.value;
+			 const selectedSpecies = organismSelect.value;
+ 
+			 console.log("Fetching positions for:", selectedType, selectedSpecies);
+ 
+			 fetch(`/get-positions?type=${encodeURIComponent(selectedType)}&species=${encodeURIComponent(selectedSpecies)}`)
+				 .then(response => {
+					 if (!response.ok) {
+						 throw new Error(`Network response was not ok: ${response.statusText}`);
+					 }
+					 return response.json();
+				 })
+				 .then(data => {
+					 console.log("Received data:", data);
+ 
+					 if (data.positions && Array.isArray(data.positions) && data.positions.length > 0) {
+						 updatePositionOptions(positionSelect, data.positions);
+					 } else {
+						 console.warn('No positions available or incorrect format:', data.message);
+						 positionSelect.innerHTML = ''; // Clear on error
+						 const option = document.createElement('option');
+						 option.value = '';
+						 option.textContent = data.message || 'No positions available';
+						 positionSelect.appendChild(option);
+					 }
+				 })
+				 .catch(error => {
+					 console.error('Error fetching positions:', error);
+					 positionSelect.innerHTML = '';
+					 const option = document.createElement('option');
+					 option.value = '';
+					 option.textContent = 'Failed to load data';
+					 positionSelect.appendChild(option);
+				 });
+		 }
+ 
+		 nTerminalSelect.addEventListener('change', () => fetchPositions(nTerminalSelect, nPositionSelect));
+		 cTerminalSelect.addEventListener('change', () => fetchPositions(cTerminalSelect, cPositionSelect));
+	 });
+ </script>

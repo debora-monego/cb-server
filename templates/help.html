@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* Help Page Specific Styles */
+    .help-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .help-section {
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+
+    .help-section-header {
+        background-color: #45B5AA;
+        color: white;
+        padding: 15px 20px;
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 500;
+    }
+
+    .help-section-content {
+        padding: 20px;
+    }
+
+    .parameter-group {
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .parameter-name {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+    }
+
+    .required-field::after {
+        content: "*";
+        color: #dc3545;
+        margin-left: 4px;
+    }
+
+    .crosslink-types {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .crosslink-category {
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 15px;
+    }
+
+    .citation-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #45B5AA;
+        padding: 15px;
+        margin: 20px 0;
+    }
+
+    figure {
+        margin: 20px 0;
+    }
+
+    figcaption {
+        text-align: center;
+        margin-top: 15px;
+        font-style: italic;
+        color: #555;
+    }
+</style>
+
+<div class="help-container">
+    <!-- Introduction Section -->
+    <div class="help-section">
+        <h1 class="help-section-header">What is ColBuilder?</h1>
+        <div class="help-section-content">
+            <p><b>ColBuilder</b> is a web resource designed to generate type I collagen fibril models. ColBuilder allows
+                to
+                build full-atom models (structure and topology) of crosslinked collagen fibrils
+                by integrating the low-resolution X-ray fiber diffraction with high-resolution X-ray crystallography and
+                mass
+                spectrometry data.</p>
+            <div class="citation-box">
+                <p class="mb-0">If you use ColBuilder, please cite:</p>
+                <a href="https://www.biorxiv.org/content/10.1101/2024.12.10.627782v1" target="_blank">
+                    https://www.biorxiv.org/content/10.1101/2024.12.10.627782v1
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Submission Section -->
+    <div class="help-section">
+        <h2 class="help-section-header">How to Submit Jobs</h2>
+        <div class="help-section-content">
+            <p>Prior to submitting jobs to the server, users should create an account on the <a
+                    href="{{ url_for('register')}}">Register page</a>.</p>
+            <p>After (automatic) approval of the registration, users can:</p>
+            <ul>
+                <li>Log in to their account</li>
+                <li>Select from 20 different species</li>
+                <li>Choose from eight different crosslink types</li>
+                <li>Configure crosslink composition</li>
+            </ul>
+            <p>Each submitted job can be accessed in the account page. Results and logfiles are stored on the server for
+                14
+                consecutive days.</p>
+        </div>
+    </div>
+
+    <!-- Form Parameters Section -->
+    <div class="help-section">
+        <h2 class="help-section-header">Form Parameters Guide</h2>
+        <div class="help-section-content">
+            <!-- Triple Helix Configuration -->
+            <div class="parameter-group">
+                <h3 class="text-primary mb-3" id="triple-helix-section">Triple Helix Configuration</h3>
+
+                <div class="mb-4">
+                    <p class="parameter-name">Generate Custom Triple Helix</p>
+                    <p>Enable this option to create a custom triple helix structure instead of using our predefined
+                        template:
+                        type I collagen from <em>Rattus novergicus</em>.</p>
+                </div>
+
+                <div class="mb-4" id="organism-dropdown">
+                    <p class="parameter-name required-field">Species Selection</p>
+                    <p>Choose from 20 different species or provide your own FASTA sequence. This selection determines
+                        the
+                        amino acid sequence used for structure generation.</p>
+                </div>
+
+                <div class="mb-4" id="fasta-sequences">
+                    <p class="parameter-name">FASTA Sequences</p>
+                    <p>Input area for custom FASTA sequences if not using a predefined species. Sequences should follow
+                        standard FASTA format with proper headers and sequence data as per example pre-loaded in the
+                        field.</p>
+                </div>
+
+                <div class="mb-4" id="enable-crosslinking">
+                    <p class="parameter-name">Molecular Crosslinks</p>
+                    <p>Enable this option to add molecular crosslinks to your structure. Available crosslink types and
+                        positions depend on the
+                        selected species.</p>
+                </div>
+
+                <div class="mb-4" id="crosslink-config">
+                    <p class="parameter-name">N(C)-terminal Crosslink Configuration</p>
+                    <ul>
+                        <li><strong>Crosslink Type:</strong> Select the type of crosslink to add at the N(C)-terminal
+                            end</li>
+                        <li><strong>Position:</strong> Specify the position for the N(C)-terminal crosslink</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Fibril Architecture -->
+            <div class="parameter-group">
+                <h3 class="text-primary mb-3" id="fibril-architecture">Fibril Architecture</h3>
+
+                <div class="mb-4">
+                    <p class="parameter-name">Generate Custom Fibril Geometry</p>
+                    <p>Enable this option to customize the geometric parameters of your fibril structure.</p>
+                </div>
+
+                <div class="mb-4" id="help-pdbformat">
+                    <p class="parameter-name required-field">PDB Structure File</p>
+                    <p>Upload a PDB format file containing the triple helix structure. Required if skipping the sequence
+                        generation step. The file should follow standard PDB format specifications and contain the
+                        following
+                        unit cell information as its first line:</p>
+                    <code>CRYST1 39.970 26.950 677.900 89.24 94.59 105.58 P 1 2</code>
+                </div>
+
+                <div class="mb-4" id="contact-distance">
+                    <p class="parameter-name required-field">Contact Distance</p>
+                    <p>Determines the size of the generated fibril structure by controlling how many unit cells are
+                        included
+                        from the crystal lattice. Valid range: 15-160 Å. A larger contact distance results in a larger
+                        fibril radius, as shown in the relationship plot.</p>
+                </div>
+
+                <div class="mb-4" id="fibril-length">
+                    <p class="parameter-name required-field">Fibril Length</p>
+                    <p>Define the length of the fibril in nanometers. Valid range: 10-334 nm. This parameter determines
+                        the
+                        overall size of your fibril model.</p>
+                </div>
+            </div>
+
+            <!-- Crosslink Modifications -->
+            <div class="parameter-group">
+                <h3 class="text-primary mb-3" id="crosslink-modifications">Crosslink Modifications</h3>
+
+                <div class="mb-4" id="mix-fibrils">
+                    <p class="parameter-name">Mix Fibrils with Different Crosslinking Patterns</p>
+                    <p>Enable this option to combine fibrils with different crosslinking patterns in your model.
+                        Requires
+                        the user to already provide PDB files for two fibrils, which can be generated in the previous
+                        steps
+                        in independent runs.</p>
+                </div>
+
+                <div class="mb-4" id="first-fibril">
+                    <p class="parameter-name required-field">First Fibril Configuration</p>
+                    <ul>
+                        <li><strong>PDB File:</strong> Upload the PDB file for the first fibril type</li>
+                        <li><strong>Percentage:</strong> Specify the percentage (0-100%) of this fibril type in the
+                            mixture</li>
+                        <li><strong>Crosslink Type:</strong> Select the crosslinking pattern (D: Divalent, T: Trivalent,
+                            DT:
+                            Divalent-Trivalent Mixture)</li>
+                    </ul>
+                </div>
+
+                <div class="mb-4" id="second-fibril">
+                    <p class="parameter-name required-field">Second Fibril Configuration</p>
+                    <ul>
+                        <li><strong>PDB File:</strong> Upload the PDB file for the second fibril type</li>
+                        <li><strong>Percentage:</strong> Automatically calculated based on the first fibril percentage
+                        </li>
+                        <li><strong>Crosslink Type:</strong> Select the crosslinking pattern for the second fibril</li>
+                    </ul>
+                </div>
+
+                <div class="mb-4" id="crosslink-density">
+                    <p class="parameter-name">Modify Crosslink Density</p>
+                    <p>Enable this option to adjust the density of crosslinks in your fibril structure. Requires
+                        the user to already provide a PDB file for a collagen fibril, which can be generated in the
+                        previous steps in independent runs.</p>
+                </div>
+
+                <!-- Crosslink Types -->
+                <div class="parameter-group">
+                    <h3 class="text-primary mb-3" id="crosslink-type">Crosslink Types</h3>
+
+                    <div class="crosslink-types">
+                        <div class="crosslink-category">
+                            <h4>Divalent Crosslinks</h4>
+                            <ul>
+                                <li>HLKNL (hydroxylysino<em>keto</em>norleucine)</li>
+                                <li>LKNL (lysino-keto-norleucine)</li>
+                                <li>deH<em>ae</em>HLNL (dehydro-hydroxylysino-norleucine)</li>
+                                <li>deH-LNL (dehydro-lysino-norleucine)</li>
+                            </ul>
+                        </div>
+
+                        <div class="crosslink-category">
+                            <h4>Trivalent Crosslinks</h4>
+                            <ul>
+                                <li>PYD (pyridinoline)</li>
+                                <li>DPD (deoxy-pyridinoline)</li>
+                                <li>PYL (pyrrole)</li>
+                                <li>DPL (deoxy-pyrrole)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <figure>
+                        <img src="{{ url_for('static', filename='images/crosslink_types.jpg') }}"
+                            alt="Collagen Crosslink Types" class="img-fluid">
+                        <figcaption>Different crosslink types observed in native collagen type I.</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <!-- Molecular Dynamics -->
+            <div class="parameter-group">
+                <h3 class="text-primary mb-3" id="topology">Molecular Dynamics Configuration</h3>
+
+                <div class="mb-4">
+                    <p class="parameter-name">Generate Simulation Topology Files</p>
+                    <p>Enable this option to generate GROMACS topology files for molecular dynamics simulation. This
+                        requires
+                        a completed fibril structure from previous steps.</p>
+                </div>
+
+                <div class="mb-4">
+                    <p class="parameter-name required-field">Force Field Selection</p>
+                    <p>Choose the force field for molecular dynamics simulation:</p>
+                    <ul>
+                        <li><strong>AMBER99SB-ILDN:</strong> Current standard force field for protein simulations
+                        </li>
+                        <li><strong>Martini 3:</strong> Coarse-grained force field (Coming Soon)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documentation Links -->
+    <div class="help-section">
+        <h2 class="help-section-header">Additional Documentation</h2>
+        <div class="help-section-content">
+            <p>The full documentation can be found on the official GitHub page of ColBuilder:
+                <a href="https://github.com/graeter-group/colbuilder/tree/main/docs" target="_blank"
+                    class="text-decoration-none">
+                    https://github.com/graeter-group/colbuilder/tree/main/docs
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="help-section">
+        <h2 class="help-section-header">Contact Information</h2>
+        <div class="help-section-content">
+            <div class="parameter-group">
+                <p>ColBuilder is developed and maintained by the <a href="https://www.mpip-mainz.mpg.de/en/graeter"
+                        target="_blank" class="text-decoration-none">Graeter Group</a> at the Max Planck Institute for
+                    Polymer Research.</p>
+
+                <p>For technical issues, bug reports, or feature requests, please submit an issue on our <a
+                        href="https://github.com/graeter-group/colbuilder/issues" target="_blank"
+                        class="text-decoration-none">GitHub Issues page</a> or email <a
+                        href="mailto:monegod@mpip-mainz.mpg.de">Dr. Debora Monego</a>.</p>
+
+                <p>We also welcome inquiries about collaborations and scientific questions!</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
