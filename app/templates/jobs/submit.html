@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Submit New Job</h1>
+    
+    <div class="job-form">
+        <form method="post" enctype="multipart/form-data">
+            {{ form.hidden_tag() if form }}
+            
+            <div class="form-group">
+                <label for="job_type">Job Type</label>
+                <select name="job_type" id="job_type" class="form-control" required>
+                    <option value="">Select a job type...</option>
+                    <option value="molecule">Molecule Generation</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description (Optional)</label>
+                <textarea name="description" id="description" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div id="job-specific-fields">
+                <!-- Dynamic fields will be loaded here based on job type -->
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ url_for('jobs.index') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Submit Job</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add this to your main.css or update the existing CSS -->
+<style>
+.job-form {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    margin-right: 10px;
+}
+
+.form-actions {
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+</style>
+{% endblock %}

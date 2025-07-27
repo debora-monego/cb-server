@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Jobs Dashboard</h1>
+    
+    <div class="actions-bar">
+        <a href="{{ url_for('jobs.submit_job') }}" class="btn btn-primary">New Job</a>
+    </div>
+
+    {% if jobs %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td>{{ job.id }}</td>
+                    <td>{{ job.job_type.value }}</td>
+                    <td>{{ job.status.value }}</td>
+                    <td>{{ job.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>
+                        <a href="{{ url_for('jobs.view_job', job_id=job.id) }}" class="btn btn-sm btn-info">View</a>
+                        {% if job.status.value in ['QUEUED', 'RUNNING'] %}
+                            <form action="{{ url_for('jobs.cancel_job', job_id=job.id) }}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-danger">Cancel</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">
+            No jobs found. Click "New Job" to start one.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

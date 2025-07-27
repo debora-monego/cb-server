@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{ title if title else 'Collagen' }}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    </head>
+    <body>
+        <nav>
+            <div class="nav-container">
+                <div class="brand">Collagen</div>
+                <div class="nav-links">
+                    {% if current_user.is_anonymous %}
+                        <a href="{{ url_for('auth.login') }}">Login</a>
+                        <a href="{{ url_for('auth.register') }}">Register</a>
+                    {% else %}
+                        <a href="{{ url_for('jobs.index') }}">Jobs</a>
+                        <a href="{{ url_for('auth.profile') }}">Profile</a>
+                        <a href="{{ url_for('auth.logout') }}">Logout</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        <main>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </body>
+</html>
